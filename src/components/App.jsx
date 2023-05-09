@@ -110,7 +110,10 @@ const INITIAL_CONTACTS = [
 // }
 
 export const App = () => {
-  const [contacts, setContacts] = useState([...INITIAL_CONTACTS]);
+  const [contacts, setContacts] = useState(
+    () =>
+      JSON.parse(window.localStorage.getItem('contacts')) ?? INITIAL_CONTACTS
+  );
   const [filter, setFilter] = useState('');
 
   const handleSubmit = event => {
@@ -153,39 +156,10 @@ export const App = () => {
     setContacts(contacts.filter(contact => contact.id !== id));
   };
 
-  // componentDidMount() {
-  //   const savedContacts = localStorage.getItem('contacts');
-
-  //   if (savedContacts != null) {
-  //     this.setState({ contacts: JSON.parse(savedContacts) });
-  //   } else {
-  //     this.setState({ contacts: INITIAL_CONTACTS });
-  //   }
-  // }
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (prevState.contacts !== this.state.contacts) {
-  //     localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  //   }
-  // }
-
+  //запис в localStorage
   useEffect(() => {
-    if (contacts) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
+    localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
-
-  const savedContacts = localStorage.getItem('contacts');
-
-  useEffect(() => {
-    console.log(savedContacts);
-
-    if (savedContacts !== null && savedContacts.length > 0) {
-      setContacts(JSON.parse(savedContacts));
-    } else {
-      setContacts(INITIAL_CONTACTS);
-    }
-  }, []);
 
   return (
     <ThemeProvider theme={theme}>
