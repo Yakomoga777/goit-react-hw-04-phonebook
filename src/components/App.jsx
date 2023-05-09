@@ -16,6 +16,72 @@ const INITIAL_CONTACTS = [
   { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
 ];
 
+export const App = () => {
+  const [contacts, setContacts] = useState(
+    () =>
+      JSON.parse(window.localStorage.getItem('contacts')) ?? INITIAL_CONTACTS
+  );
+  const [filter, setFilter] = useState('');
+
+  const handleSubmit = event => {
+    const form = event.target;
+    const name = form.elements.name.value;
+    const number = form.elements.number.value;
+    const newContact = { name, number, id: nanoid() };
+    console.log(newContact);
+
+    const includesName = contacts.find(
+      contact => contact.name.toLocaleLowerCase() === name.toLocaleLowerCase()
+    );
+    if (includesName) {
+      alert(`${name} is already in contacts`);
+      return;
+    }
+    setContacts([...contacts, newContact]);
+  };
+
+  // Керований інпут фільтра
+  const handleChangeFilter = event => {
+    if (event.target.name === 'filter') {
+      setFilter(event.target.value);
+    }
+  };
+
+  // Функція фільтрації контактів
+  const filtersContacts = () => {
+    if (!filter) {
+      return contacts;
+    } else if (filter) {
+      return contacts.filter(item =>
+        item.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
+      );
+    }
+  };
+
+  //Метод видалення
+  const handleDelete = id => {
+    setContacts(contacts.filter(contact => contact.id !== id));
+  };
+
+  //запис в localStorage
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+
+      <h1>Phonebook</h1>
+      <ContactForm btn="Add contact" handleSubmit={handleSubmit} />
+
+      <h2>Contacts</h2>
+      <Filter value={filter} onFilterInput={handleChangeFilter} />
+      <ContactList items={filtersContacts()} handleDelete={handleDelete} />
+    </ThemeProvider>
+  );
+};
+
 // export class App extends Component {
 //   state = {
 //     contacts: [...INITIAL_CONTACTS],
@@ -108,69 +174,3 @@ const INITIAL_CONTACTS = [
 //     );
 //   }
 // }
-
-export const App = () => {
-  const [contacts, setContacts] = useState(
-    () =>
-      JSON.parse(window.localStorage.getItem('contacts')) ?? INITIAL_CONTACTS
-  );
-  const [filter, setFilter] = useState('');
-
-  const handleSubmit = event => {
-    const form = event.target;
-    const name = form.elements.name.value;
-    const number = form.elements.number.value;
-    const newContact = { name, number, id: nanoid() };
-    console.log(newContact);
-
-    const includesName = contacts.find(
-      contact => contact.name.toLocaleLowerCase() === name.toLocaleLowerCase()
-    );
-    if (includesName) {
-      alert(`${name} is already in contacts`);
-      return;
-    }
-    setContacts([...contacts, newContact]);
-  };
-
-  // Керований інпут фільтра
-  const handleChangeFilter = event => {
-    if (event.target.name === 'filter') {
-      setFilter(event.target.value);
-    }
-  };
-
-  // Функція фільтрації контактів
-  const filtersContacts = () => {
-    if (!filter) {
-      return contacts;
-    } else if (filter) {
-      return contacts.filter(item =>
-        item.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
-      );
-    }
-  };
-
-  //Метод видалення
-  const handleDelete = id => {
-    setContacts(contacts.filter(contact => contact.id !== id));
-  };
-
-  //запис в localStorage
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-
-      <h1>Phonebook</h1>
-      <ContactForm btn="Add contact" handleSubmit={handleSubmit} />
-
-      <h2>Contacts</h2>
-      <Filter value={filter} onFilterInput={handleChangeFilter} />
-      <ContactList items={filtersContacts()} handleDelete={handleDelete} />
-    </ThemeProvider>
-  );
-};
